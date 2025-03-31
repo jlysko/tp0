@@ -40,6 +40,7 @@ int main(void)
 
 	// Creamos una conexión hacia el servidor
 	conexion = crear_conexion(ip, puerto);
+	
 
 	// Enviamos al servidor el valor de CLAVE como mensaje
 
