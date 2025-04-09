@@ -4,42 +4,66 @@ t_log* logger;
 
 int iniciar_servidor(void)
 {
-	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	assert(!"no implementado!");
 
-	int socket_servidor;
+    int socket_servidor;
+    struct addrinfo hints, *servinfo;
 
-	struct addrinfo hints, *servinfo, *p;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
 
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+    getaddrinfo(NULL, PUERTO, &hints, &servinfo);
 
-	getaddrinfo(NULL, PUERTO, &hints, &servinfo);
+    socket_servidor = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+    if (socket_servidor == -1) {
+        log_error(logger, "Error al crear el socket");
+        abort();
+    }
+    log_info(logger, "Socket creado correctamente");
 
-	// Creamos el socket de escucha del servidor
+    if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) == -1) {
+        log_error(logger, "Error al configurar el socket");
+        abort();
+    }
+    log_info(logger, "Socket configurado correctamente");
 
-	// Asociamos el socket a un puerto
 
-	// Escuchamos las conexiones entrantes
+    if (bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) == -1) {
+        log_error(logger, "Error al asociar el socket");
+        abort();
+    }
+    log_info(logger, "Socket asociado correctamente");
 
-	freeaddrinfo(servinfo);
-	log_trace(logger, "Listo para escuchar a mi cliente");
+    // Escuchamos el socket
+    if (listen(socket_servidor, SOMAXCONN) == -1) {
+        log_error(logger, "Error al escuchar el socket");
+        abort();
+    }
+    log_info(logger, "Socket escuchando correctamente");
 
-	return socket_servidor;
+    freeaddrinfo(servinfo);
+    log_trace(logger, "Listo para escuchar a mi cliente");
+
+    return socket_servidor;
 }
 
 int esperar_cliente(int socket_servidor)
 {
-	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	assert(!"no implementado!");
 
-	// Aceptamos un nuevo cliente
-	int socket_cliente;
-	log_info(logger, "Se conecto un cliente!");
+    // Aceptamos un nuevo cliente
+    int socket_cliente;
+    
+    // Aceptamos un nuevo cliente
+    socket_cliente = accept(socket_servidor, NULL, NULL);
+    if (socket_cliente == -1) {
+        log_error(logger, "Error al aceptar el cliente");
+        abort();
+    }
+    log_info(logger, "Cliente aceptado correctamente");
+    log_info(logger, "Se conecto un cliente!");
 
-	return socket_cliente;
+    return socket_cliente;
 }
 
 int recibir_operacion(int socket_cliente)
@@ -75,7 +99,7 @@ void recibir_mensaje(int socket_cliente)
 
 t_list* recibir_paquete(int socket_cliente)
 {
-	int size;
+	int size; //**no se le asigna valor a size
 	int desplazamiento = 0;
 	void * buffer;
 	t_list* valores = list_create();
