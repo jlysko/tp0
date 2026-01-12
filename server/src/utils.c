@@ -5,9 +5,9 @@ t_log* logger;
 int iniciar_servidor(void)
 {
 	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	assert(!"no implementado!");
+	//assert(!"no implementado!");
 
-	int socket_servidor;
+	int fd_escucha, err;
 
 	struct addrinfo hints, *servinfo, *p;
 
@@ -16,27 +16,54 @@ int iniciar_servidor(void)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	getaddrinfo(NULL, PUERTO, &hints, &servinfo);
+	err = getaddrinfo(NULL, PUERTO, &hints, &servinfo);
+
+	if(err != 0){
+		error_show("ERROR al obtener addrinfo, finalizando...");
+		abort();
+	}
 
 	// Creamos el socket de escucha del servidor
+	fd_escucha = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+	if(fd_escucha == -1){
+		error_show("ERROR al crear socket de escucha, finalizando...");
+		abort();
+	}
 
 	// Asociamos el socket a un puerto
+	
+	err = setsockopt(fd_escucha, SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
+	err = bind(fd_escucha, servinfo->ai_addr, servinfo->ai_addrlen);
+
+	if(err == -1){
+		error_show("ERROR al bindear socket, finalizando...");
+		abort();
+	}
+
+
 
 	// Escuchamos las conexiones entrantes
+	err = listen(fd_escucha, SOMAXCONN);
+	if(err == -1){
+		error_show("ERROR al escuchar conexiones, finalizando...");
+		abort();
+	}
 
 	freeaddrinfo(servinfo);
 	log_trace(logger, "Listo para escuchar a mi cliente");
 
-	return socket_servidor;
+	return fd_escucha;
 }
 
 int esperar_cliente(int socket_servidor)
 {
 	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	assert(!"no implementado!");
+	//assert(!"no implementado!");
 
 	// Aceptamos un nuevo cliente
 	int socket_cliente;
+
+	socket_cliente = accept(socket_servidor, NULL, NULL);
 	log_info(logger, "Se conecto un cliente!");
 
 	return socket_cliente;

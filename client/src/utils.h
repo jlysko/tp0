@@ -9,12 +9,16 @@
 #include<netdb.h>
 #include<string.h>
 #include<commons/log.h>
+#include<commons/error.h>
+#include<errno.h>
 
 typedef enum
 {
 	MENSAJE,
 	PAQUETE
 }op_code;
+
+extern t_log* logger;
 
 typedef struct
 {
