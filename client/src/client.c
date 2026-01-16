@@ -118,6 +118,7 @@ void leer_consola(t_log* logger)
 	free(leido);
 }
 
+/*
 void paquete(int conexion)
 {
 	// Ahora toca lo divertido!
@@ -138,6 +139,30 @@ void paquete(int conexion)
 	enviar_paquete(paquete, conexion);
 
 	// ¡No te olvides de liberar las líneas y el paquete antes de regresar!
+	free(leido);
+	eliminar_paquete(paquete);
+}
+*/
+
+void paquete(int conexion)
+{
+	char* leido;
+	t_paquete* paquete = crear_paquete();
+
+	leido = readline("> ");
+	
+	while(leido[0] != '\0'){
+		agregar_a_paquete(paquete, leido, strlen(leido) + 1);
+
+		enviar_paquete(paquete, conexion);
+
+		free(leido);
+		leido = readline("> ");
+	}
+
+	//agregar_a_paquete(paquete, leido, strlen(leido) + 1);
+	//enviar_paquete(paquete, conexion);
+
 	free(leido);
 	eliminar_paquete(paquete);
 }

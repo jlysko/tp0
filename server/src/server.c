@@ -2,6 +2,7 @@
 
 int main(void) {
 	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
+	bool titulo = true;
 
 	int server_fd = iniciar_servidor();
 	log_info(logger, "Servidor listo para recibir al cliente");
@@ -16,8 +17,14 @@ int main(void) {
 			break;
 		case PAQUETE:
 			lista = recibir_paquete(cliente_fd);
+
+			if(titulo){
 			log_info(logger, "Me llegaron los siguientes valores:\n");
+			titulo = false;
+			}
+
 			list_iterate(lista, (void*) iterator);
+
 			break;
 		case -1:
 			log_error(logger, "el cliente se desconecto. Terminando servidor");

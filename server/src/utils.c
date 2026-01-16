@@ -103,21 +103,16 @@ void recibir_mensaje(int socket_cliente)
 t_list* recibir_paquete(int socket_cliente)
 {
 	int size;
-	int desplazamiento = 0;
 	void * buffer;
 	t_list* valores = list_create();
-	int tamanio;
 
 	buffer = recibir_buffer(&size, socket_cliente);
-	while(desplazamiento < size)
-	{
-		memcpy(&tamanio, buffer + desplazamiento, sizeof(int));
-		desplazamiento+=sizeof(int);
-		char* valor = malloc(tamanio);
-		memcpy(valor, buffer+desplazamiento, tamanio);
-		desplazamiento+=tamanio;
-		list_add(valores, valor);
-	}
+	
+	char* valor = malloc(size);
+	memcpy(valor, buffer, size);
+
+	list_add(valores, valor);
+	
 	free(buffer);
 	return valores;
 }
