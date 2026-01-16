@@ -88,7 +88,7 @@ t_config* iniciar_config(void)
 {
 	t_config* nuevo_config;
 
-	nuevo_config = config_create("cliente.config");
+	nuevo_config = config_create("../cliente.config");
 
 	if(nuevo_config == NULL){
 		printf("ERROR al crear config");

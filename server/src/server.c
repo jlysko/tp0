@@ -1,15 +1,40 @@
 #include "server.h"
+void* atender_cliente(void* arg);
 
 int main(void) {
 	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
-	bool titulo = true;
+	
 
 	int server_fd = iniciar_servidor();
 	log_info(logger, "Servidor listo para recibir al cliente");
-	int cliente_fd = esperar_cliente(server_fd);
+	
 
-	t_list* lista;
+	
 	while (1) {
+		int arg = esperar_cliente(server_fd);
+		int* arg_ptr = malloc(sizeof(int));
+    	*arg_ptr = arg;
+
+
+		pthread_t cliente;
+		pthread_create(&cliente, NULL, atender_cliente, (void*) arg_ptr);
+		pthread_detach(cliente);
+	}
+	return EXIT_SUCCESS;
+}
+
+void iterator(char* value) {
+	log_info(logger,"%s", value);
+}
+
+void* atender_cliente(void* arg) {
+	int cliente_fd = *(int*)arg;
+	free(arg);
+	
+	t_list* lista;
+	bool titulo = true;
+	
+	while(1){
 		int cod_op = recibir_operacion(cliente_fd);
 		switch (cod_op) {
 		case MENSAJE:
@@ -24,6 +49,7 @@ int main(void) {
 			}
 
 			list_iterate(lista, (void*) iterator);
+			list_destroy_and_destroy_elements(lista, free);
 
 			break;
 		case -1:
@@ -34,9 +60,4 @@ int main(void) {
 			break;
 		}
 	}
-	return EXIT_SUCCESS;
-}
-
-void iterator(char* value) {
-	log_info(logger,"%s", value);
 }
